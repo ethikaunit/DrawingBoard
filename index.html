@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>drawing board</title>
+
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+
+		}
+
+
+
+
+		.nav{
+			position: fixed;
+			width: 800px;
+			height: 80px;
+			top: 1%;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #1f1f1f;
+			border-radius: 10px;
+
+
+			}
+		.clr{
+			width: 30px;
+			height: 30px;
+			border: 2px solid white;
+			margin-inline: 5px;
+			border-radius: 50%;
+			background: var(--clr);
+		}
+		.clr:hover{
+			transition: .25s;
+			transform: scale(1.1);
+		}
+
+		
+		.nav > button{
+			background: white;
+			border:1px solid white;
+			border-radius: 5px;
+			outline: none;
+			font-family: montserrat;
+			font-size: 1rem;
+			padding: 5px 10px;
+			margin-inline: 5px;
+			color: white;
+
+		}
+		.nav > .clear{
+			background: #0fc100;
+			
+		}
+		.nav > .save{
+			background: #0696ec;
+			
+		}
+		.nav > input{
+			margin-inline: 5px;
+		}
+		.nav > #ageOutputId{
+			font-family: montserrat;
+			font-size: 1rem;
+			color: white;
+			margin-right: 5px;
+		}
+		.nav > .emoji{
+			position: relative;
+			width: auto;
+			height: 100%;
+			font-size: 2rem;
+			display: flex;
+			align-items: center;
+			margin-inline: 5px;
+		}
+		.emoji > img{
+
+			height: 50px;
+			width: 50px;
+			object-fit: cover;
+			border-radius: 50%;
+
+			
+		}
+		.nav input[type="color"]{
+			outline: none;
+			border: 2px solid white;
+		}
+
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<div class="nav">
+		<div class="clr" data-clr="#fff" style="--clr:#fff"></div>
+		<div class="clr" data-clr="#ff0b0b" style="--clr:#ff0b0b"></div>
+		<div class="clr" data-clr="#00ae13" style="--clr:#00ae13"></div>
+		<div class="clr" data-clr="#051468" style="--clr:#051468"></div>
+		<div class="clr" data-clr="#fb8f04" style="--clr:#fb8f04"></div>
+		<div class="clr" data-clr="#06a3d2" style="--clr:#06a3d2"></div>
+		<div class="clr" data-clr="#111" style="--clr:#000"></div>
+
+	<button class="clear">clear</button>
+	<button class="save">save</button>
+	<input type="color" value="#fff" id="favcolor" >
+	<input type="range" name="ageInputName" id="ageInputId"  min="1" max="10" oninput="ageOutputId.value = ageInputId.value">
+	<output id="ageOutputId">5</output>
+	<div class="emoji">
+		<img src="./img/newlogo.png">
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+	
+	const canvas = document.getElementById("canvas");
+	const body = document.querySelector("body")
+
+	canvas.height = window.innerHeight;
+	canvas.width = window.innerWidth;
+
+	var theColor = '';
+	var lineW = 5;
+	let prevX = null;
+	let prevY = null;
+	let draw = false;
+
+	body.style.backgroundColor = "white";
+	var theInput = document.getElementById("favcolor");
+
+	theInput.addEventListener('input',function(){
+		theColor =  theInput.value
+		body.style.backgroundColor = theColor;
+	}, false)
+
+	const ctx = canvas.getContext("2d");
+	ctx.lineWidth = lineW;
+
+
+
+
+	document.getElementById("ageInputId").oninput = function(){
+		draw = null;
+		lineW = document.getElementById("ageInputId").value;
+		 document.getElementById("ageOutputId").innerHTML = lineW;
+		
+		ctx.lineWidth = lineW;
+
+	}
+
+
+	let clrs = document.querySelectorAll(".clr");
+	clrs = Array.from(clrs);
+	clrs.forEach(clr =>{
+		clr.addEventListener("click", ()=>{
+			ctx.strokeStyle = clr.dataset.clr;
+		});
+	})
+
+
+	let clearBtn = document.querySelector(".clear");
+	clearBtn.addEventListener("click", ()=>{
+		ctx.clearRect(0,0, canvas.width, canvas.height)
+	});
+
+	let saveBtn = document.querySelector(".save");
+	saveBtn.addEventListener('click',()=>{
+		let data = canvas.toDataURL("imag/png");
+		let a = document.createElement("a");
+		a.href = data;
+		a.download = "sketch.png"
+		a.click();
+
+	})
+
+	window.addEventListener("mousedown", (e)=> draw = true);
+	window.addEventListener("mouseup", (e)=> draw = false);
+
+	window.addEventListener("mousemove", (e)=>{
+		if(prevX == null || prevY == null || !draw){
+
+			prevX = e.clientX;
+			prevY = e.clientY;
+			return
+		}
+		let currentX = e.clientX;
+		let currentY = e.clientY;
+
+		ctx.beginPath()
+		ctx.moveTo(prevX, prevY);
+		ctx.lineTo(currentX, currentY);
+		ctx.stroke();
+
+		prevX = currentX;
+		prevY = currentY;
+	});
+
+</script>
+</html>
